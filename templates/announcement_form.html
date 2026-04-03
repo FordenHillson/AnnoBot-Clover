@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+
+{% block title %}{{ 'Edit' if announcement else 'New' }} Announcement - AnnoBot{% endblock %}
+
+{% block content %}
+<div class="form-card">
+    <h1>{{ 'Edit' if announcement else 'New' }} Announcement</h1>
+    {% if error %}
+    <div class="alert alert-error">{{ error }}</div>
+    {% endif %}
+    <form method="POST">
+        <div class="form-group">
+            <label for="channel_id">Channel ID</label>
+            <input type="text" id="channel_id" name="channel_id" value="{{ announcement.channel_id if announcement else '' }}" required placeholder="123456789012345678">
+            <small>Right-click a channel in Discord and copy its ID (Developer Mode required)</small>
+        </div>
+        <div class="form-group">
+            <label for="message">Message</label>
+            <textarea id="message" name="message" rows="6" required placeholder="Your announcement message...">{{ announcement.message if announcement else '' }}</textarea>
+        </div>
+        <div class="form-group">
+            <label>Schedule Type</label>
+            <select id="schedule_type" name="schedule_type" required onchange="toggleScheduleFields()">
+                <option value="weekly" {% if (announcement and announcement.schedule_type == 'weekly') or schedule_type == 'weekly' %}selected{% endif %}>Weekly</option>
+                <option value="cron" {% if (announcement and announcement.schedule_type == 'cron') or schedule_type == 'cron' %}selected{% endif %}>Custom (Cron)</option>
+            </select>
+        </div>
+        <div id="weekly-fields" class="form-group">
+            <label>Days</label>
+            <div class="day-checkboxes">
+                <label><input type="checkbox" name="days" value="mon" {% if announcement and 'mon' in (announcement.schedule_value.split()[0] if announcement.schedule_value else '') %}checked{% endif %}> Mon</label>
+                <label><input type="checkbox" name="days" value="tue" {% if announcement and 'tue' in (announcement.schedule_value.split()[0] if announcement.schedule_value else '') %}checked{% endif %}> Tue</label>
+                <label><input type="checkbox" name="days" value="wed" {% if announcement and 'wed' in (announcement.schedule_value.split()[0] if announcement.schedule_value else '') %}checked{% endif %}> Wed</label>
+                <label><input type="checkbox" name="days" value="thu" {% if announcement and 'thu' in (announcement.schedule_value.split()[0] if announcement.schedule_value else '') %}checked{% endif %}> Thu</label>
+                <label><input type="checkbox" name="days" value="fri" {% if announcement and 'fri' in (announcement.schedule_value.split()[0] if announcement.schedule_value else '') %}checked{% endif %}> Fri</label>
+                <label><input type="checkbox" name="days" value="sat" {% if announcement and 'sat' in (announcement.schedule_value.split()[0] if announcement.schedule_value else '') %}checked{% endif %}> Sat</label>
+                <label><input type="checkbox" name="days" value="sun" {% if announcement and 'sun' in (announcement.schedule_value.split()[0] if announcement.schedule_value else '') %}checked{% endif %}> Sun</label>
+            </div>
+        </div>
+        <div id="time-field" class="form-group">
+            <label for="time">Time</label>
+            <input type="time" id="time" name="time" value="{{ announcement.schedule_value.split()[1] if announcement and announcement.schedule_type == 'weekly' else '14:00' }}">
+        </div>
+        <div id="cron-fields" class="form-group" style="display:none;">
+            <label for="cron_value">Cron Expression</label>
+            <input type="text" id="cron_value" value="{{ announcement.schedule_value if announcement and announcement.schedule_type == 'cron' else '' }}" placeholder="minute hour day month day_of_week">
+            <small>Format: <code>minute hour day month day_of_week</code> (e.g. <code>0 14 * * 1,3,5</code>)</small>
+        </div>
+        <input type="hidden" id="schedule_value" name="schedule_value" value="">
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">{{ 'Update' if announcement else 'Create' }} Announcement</button>
+            <a href="{{ url_for('index') }}" class="btn btn-secondary">Cancel</a>
+        </div>
+    </form>
+</div>
+
+<script>
+function toggleScheduleFields() {
+    const type = document.getElementById('schedule_type').value;
+    const weeklyFields = document.getElementById('weekly-fields');
+    const timeField = document.getElementById('time-field');
+    const cronFields = document.getElementById('cron-fields');
+    if (type === 'cron') {
+        weeklyFields.style.display = 'none';
+        timeField.style.display = 'none';
+        cronFields.style.display = 'block';
+    } else {
+        weeklyFields.style.display = 'block';
+        timeField.style.display = 'block';
+        cronFields.style.display = 'none';
+    }
+}
+
+document.querySelector('form').addEventListener('submit', function(e) {
+    const type = document.getElementById('schedule_type').value;
+    const hiddenInput = document.getElementById('schedule_value');
+    if (type === 'weekly') {
+        const days = Array.from(document.querySelectorAll('input[name="days"]:checked')).map(c => c.value);
+        const time = document.getElementById('time').value;
+        if (days.length === 0) {
+            e.preventDefault();
+            alert('Select at least one day');
+            return;
+        }
+        hiddenInput.value = days.join(',') + ' ' + time;
+    } else {
+        hiddenInput.value = document.getElementById('cron_value').value;
+    }
+});
+
+toggleScheduleFields();
+</script>
+{% endblock %}
