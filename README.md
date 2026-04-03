@@ -9,7 +9,7 @@ A Discord bot with a web dashboard for managing scheduled auto-announcements.
 - **Custom cron** schedule (e.g., `0 14 * * 1,3,5`)
 - Auto-edits existing messages instead of spamming new ones
 - Password-protected web dashboard
-- Deploy-ready for Render.com
+- Deploy-ready for Replit, Render, or any Python host
 
 ## Setup
 
@@ -47,21 +47,18 @@ python bot.py
 
 The dashboard will be available at `http://localhost:10000`
 
-### 4. Deploy to Render.com
+### 4. Deploy to Replit
 
-1. Push your code to GitHub
-2. Go to https://render.com and create a new **Web Service**
-3. Connect your GitHub repo
-4. Configure:
-   - **Build Command**: `pip install -r requirements.txt`
-   - **Start Command**: `python bot.py`
-5. Add **Environment Variables**:
+1. Go to https://replit.com and click **Create Repl**
+2. Select **Import from GitHub** and choose your repo
+3. Go to **Secrets** (lock icon in Tools) and add:
    - `DISCORD_TOKEN` - Your Discord bot token
    - `DASHBOARD_PASSWORD` - Your dashboard password
-   - `TIMEZONE` - e.g., `America/New_York` (default: `UTC`)
-6. Deploy
+   - `TIMEZONE` - Set to `Asia/Bangkok`
+4. Click **Run**
+5. The dashboard will be available in the Webview panel
 
-> **Note**: Render free tier has an ephemeral filesystem. SQLite data will be lost on redeploy. To persist data, upgrade to Render Starter ($7/mo) and attach a Persistent Disk, or set `DATABASE_PATH` to a persistent volume path.
+> **Note**: Free Replit accounts sleep after inactivity. Use [UptimeRobot](https://uptimerobot.com) to ping your Repl URL every 5 minutes to keep it alive. The dashboard URL is shown in the Webview panel when running.
 
 ## Environment Variables
 

@@ -1,0 +1,8 @@
+run = ["python", "bot.py"]
+entrypoint = "bot.py"
+
+[nix]
+channel = "stable-24_11"
+
+[deployment]
+run = ["python", "bot.py"]
